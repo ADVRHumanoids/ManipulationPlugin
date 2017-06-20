@@ -17,10 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ManipulationPlugin_PLUGIN_H_
+#ifndef ManipulationPlugin_H_
 #define ManipulationPlugin_PLUGIN_H_
 
 #include <XCM/XBotControlPlugin.h>
+#include "fsm_definition.h"
 
 
 namespace XBotPlugin {
@@ -57,6 +58,8 @@ private:
     Eigen::VectorXd _q0;
 
     XBot::MatLogger::Ptr _logger;
+    
+    XBot::FSM::StateMachine< myfsm::MacroState , myfsm::SharedData > fsm;
 
 };
 

@@ -42,6 +42,18 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
     
     _logger = XBot::MatLogger::getLogger("/tmp/ManipulationPlugin_log");
 
+
+    /*Saves robot as shared variable between states*/
+    fsm.shared_data()._robot= robot;
+    
+    /*Registers states*/
+    fsm.register_state(std::make_shared<myfsm::Ready>());
+    fsm.register_state(std::make_shared<myfsm::Move>());
+    fsm.register_state(std::make_shared<myfsm::HandCmd>());
+    
+    // Initialize the FSM with the initial state
+    fsm.init("Ready");
+
     return true;
 
 
@@ -76,6 +88,9 @@ void ManipulationPlugin::control_loop(double time, double period)
      * it is stopped.
      * Since this function is called within the real-time loop, you should not perform
      * operations that are not rt-safe. */
+
+
+     fsm.run(time, 0.01);
 
 }
 

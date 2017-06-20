@@ -1,2 +1,2 @@
-ManipulationPlugin
+fsm_plugin
 ===============
