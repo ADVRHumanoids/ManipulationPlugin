@@ -1,2 +1,4 @@
-fsm_plugin
+ManipulationPlugin
 ===============
+
+Centralized Manipulation Plugin.
