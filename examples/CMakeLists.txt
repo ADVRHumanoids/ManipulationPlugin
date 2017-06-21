@@ -1,7 +1,7 @@
-# 
-#  Copyright (C) 2017 IIT-ADVR
-#  Author: 
-#  email: 
+#
+#  Copyright (C) 2016 IIT-ADVR
+#  Author: Luca Muratore
+#  email: luca.muratore@iit.it
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Lesser General Public License as published by
@@ -17,13 +17,16 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-# CMake 3.5.1 required 
+#minimum cmake required version
 cmake_minimum_required(VERSION 3.5.1)
+# generic_tutorial project
+project(ManipulationPlugin_examples)
 
-# XBot RT Plugin
-project(ManipulationPlugin)
+###################
+## Configuration ##
+###################
 
-# C++11
+#enable C++ 11 : try with two different flags
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
 check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -35,38 +38,24 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-# Add cmake dir and include custom macros
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-include(MacroYCMInstallLibrary)
+# find the required packages
+find_package(catkin REQUIRED COMPONENTS roscpp)
 
-# find required packages
-find_package(XCM REQUIRED)
+#############
+## Include ##
+#############
+include_directories(include ${catkin_INCLUDE_DIRS})
 
-# XENOMAI
-set(ENABLE_XENO CACHE BOOL "ON")
-if ( ${ENABLE_XENO} )
-   find_package(Xenomai)
-endif()
+###########
+## Build ##
+###########
 
-# include
-include_directories(include/${PROJECT_NAME}
-                    ${XCM_INCLUDE_DIRS}
-                    )
+add_executable(simple_service_caller src/simple_service_caller.cpp)
 
-# lib
-add_library(${PROJECT_NAME} SHARED
-    src/ManipulationPlugin_plugin.cpp src/fsm_implementation.cpp
-)
+##########
+## Link ##
+##########
+target_link_libraries(simple_service_caller ${catkin_LIBRARIES})
 
-# set Xenomain flags if Xenomai is found
-if ( Xenomai_FOUND )
-    set_xeno_flags(${PROJECT_NAME})
-endif()
 
-# linking
-target_link_libraries(${PROJECT_NAME} ${XCM_LIBRARIES})
-
-#install
-ycm_library_install(${PROJECT_NAME} 1 0 0)
-
-add_subdirectory(examples)
+include(AddUninstallTarget)

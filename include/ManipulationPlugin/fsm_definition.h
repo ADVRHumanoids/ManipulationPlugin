@@ -1,97 +1,135 @@
 #include <XBotInterface/StateMachine.h>
 
+#include <ros/node_handle.h>
 
-namespace myfsm{
+#include <ADVR_ROS/advr_cartesian_control.h>
+#include <ADVR_ROS/advr_segment_control.h>
 
-/*Example how to define a custom Event*/
-/*  class MyEvent : public XBot::FSM::Event {
+namespace myfsm
+{
 
-    public:
 
-      MyEvent(int id): id(id) {}
-      
-      int id;    
+class CartesianTrajReceived : public XBot::FSM::Message
+{
 
-    };
-*/
+public:
+        CartesianTrajReceived ( ADVR_ROS::advr_cartesian_controlRequest cartesian_trj ) 
+        {
+            this->cartesian_trj = cartesian_trj;
+        }
 
-/*Example how to define a custom Message*/   
-/*  class MyMessage : public XBot::FSM::Message {
+        ADVR_ROS::advr_cartesian_controlRequest cartesian_trj;
+};
 
-    public:
-      
-      MyMessage (int id):id(id){};
-      
-      int id;
-	
-    };
-*/
-    struct SharedData {
-      
-      XBot::RobotInterface::Ptr _robot;
-     
-    };
+class SegmentTrajReceived : public XBot::FSM::Message
+{
+
+public:
+        SegmentTrajReceived ( ADVR_ROS::advr_segment_controlRequest segment_trj )
+        {
+            this->segment_trj = segment_trj;
+        }
+
+        ADVR_ROS::advr_segment_controlRequest segment_trj;
+};
+
+class DummyReady : public XBot::FSM::Message
+{
+
+public:
+        DummyReady () {}
+};
+
+
+struct SharedData {
+
+        XBot::RobotInterface::Ptr _robot;
+        std::shared_ptr<ros::NodeHandle> _nh;
+
+};
+
+class MacroState : public  XBot::FSM::State< MacroState , SharedData >
+{
+
+public:
+
+        virtual void entry ( const XBot::FSM::Message& msg ) {};
+        virtual void react ( const XBot::FSM::Event& e ) {};
+        
+        virtual void entry ( const DummyReady& e ) {};
+        virtual void entry ( const CartesianTrajReceived& e ) {};
+        virtual void entry ( const SegmentTrajReceived& e ) {};
+
+};
+
+
+class Ready : public MacroState
+{
+
+public:
+        virtual std::string get_name() const {
+                return "Ready";
+        }
+        virtual void run ( double time, double period );
+        
+        virtual void entry ( const XBot::FSM::Message& msg );
+        virtual void entry ( const DummyReady& msg );
+        
+        virtual void react ( const XBot::FSM::Event& e );
+        
+        virtual void exit();
+        
+        bool callback_cartesian_control(ADVR_ROS::advr_cartesian_controlRequest&  req, 
+                                        ADVR_ROS::advr_cartesian_controlResponse& res);
+        
+        bool callback_segment_control(  ADVR_ROS::advr_segment_controlRequest&  req, 
+                                        ADVR_ROS::advr_segment_controlResponse& res);
+private:
     
-    class MacroState : public  XBot::FSM::State< MacroState , SharedData > {
-      
-    public:
-	
-	virtual void entry(const XBot::FSM::Message& msg) {};
-	virtual void react(const XBot::FSM::Event& e){};
-      
-    };  
+        ros::ServiceServer _cartesian_control_srv, 
+                           _segment_control_srv;
 
- 
-    class Ready : public MacroState {
+};
 
-      virtual std::string get_name() const { return "Ready"; }
+class Move : public MacroState
+{
 
-      virtual void run(double time, double period);
+        virtual std::string get_name() const {
+                return "Move";
+        }
+        virtual void run ( double time, double period );
+        virtual void entry ( const XBot::FSM::Message& msg );
+        
+        virtual void entry ( const CartesianTrajReceived& m );
+        virtual void entry ( const SegmentTrajReceived& m );
+        
+        virtual void react ( const XBot::FSM::Event& e );
+        virtual void exit();
 
-      virtual void entry(const XBot::FSM::Message& msg);
-
-      virtual void react(const XBot::FSM::Event& e);
-
-      virtual void exit ();
-
-      private:
+private:
 
 
-     };
- 
-    class Move : public MacroState {
+};
 
-      virtual std::string get_name() const { return "Move"; }
+class HandCmd : public MacroState
+{
 
-      virtual void run(double time, double period);
+        virtual std::string get_name() const {
+                return "HandCmd";
+        }
 
-      virtual void entry(const XBot::FSM::Message& msg);
+        virtual void run ( double time, double period );
 
-      virtual void react(const XBot::FSM::Event& e);
+        virtual void entry ( const XBot::FSM::Message& msg );
 
-      virtual void exit ();
+        virtual void react ( const XBot::FSM::Event& e );
 
-      private:
+        virtual void exit ();
 
-
-     };
- 
-    class HandCmd : public MacroState {
-
-      virtual std::string get_name() const { return "HandCmd"; }
-
-      virtual void run(double time, double period);
-
-      virtual void entry(const XBot::FSM::Message& msg);
-
-      virtual void react(const XBot::FSM::Event& e);
-
-      virtual void exit ();
-
-      private:
+private:
 
 
-     };
-     
-      
+};
+
+
 }

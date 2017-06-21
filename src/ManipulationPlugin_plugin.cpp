@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017 IIT-ADVR
- * Author:
- * email:
+ * Author: Luca Muratore
+ * email: luca.muratore@iit.it
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,7 +45,7 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
 
     /*Saves robot as shared variable between states*/
     fsm.shared_data()._robot= robot;
-    
+
     /*Registers states*/
     fsm.register_state(std::make_shared<myfsm::Ready>());
     fsm.register_state(std::make_shared<myfsm::Move>());
@@ -53,7 +53,9 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
     
     // Initialize the FSM with the initial state
     fsm.init("Ready");
-
+    
+    
+    
     return true;
 
 
@@ -61,10 +63,6 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
 
 void ManipulationPlugin::on_start(double time)
 {
-    /* This function is called on plugin start, i.e. when the start command
-     * is sent over the plugin switch port (e.g. 'rosservice call /ManipulationPlugin_switch true').
-     * Since this function is called within the real-time loop, you should not perform
-     * operations that are not rt-safe. */
 
     /* Save the plugin starting time to a class member */
     _robot->getMotorPosition(_q0);
@@ -75,30 +73,18 @@ void ManipulationPlugin::on_start(double time)
 
 void ManipulationPlugin::on_stop(double time)
 {
-    /* This function is called on plugin stop, i.e. when the stop command
-     * is sent over the plugin switch port (e.g. 'rosservice call /ManipulationPlugin_switch false').
-     * Since this function is called within the real-time loop, you should not perform
-     * operations that are not rt-safe. */
 }
 
 
 void ManipulationPlugin::control_loop(double time, double period)
 {
-    /* This function is called on every control loop from when the plugin is start until
-     * it is stopped.
-     * Since this function is called within the real-time loop, you should not perform
-     * operations that are not rt-safe. */
-
-
-     fsm.run(time, 0.01);
+    // run the FSM
+    fsm.run(time, 0.005);
 
 }
 
 bool ManipulationPlugin::close()
 {
-    /* This function is called exactly once, at the end of the experiment.
-     * It can be used to do some clean-up, or to save logging data to disk. */
-
     /* Save logged data to disk */
     _logger->flush();
 
