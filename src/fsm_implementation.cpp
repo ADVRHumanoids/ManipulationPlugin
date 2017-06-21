@@ -1,4 +1,6 @@
 #include <fsm_definition.h>
+#include <tf_conversions/tf_kdl.h>
+
 
 /*BEGIN Ready*/
 
@@ -62,7 +64,10 @@ bool myfsm::Ready::callback_cartesian_control ( ADVR_ROS::advr_cartesian_control
     res.success = 1;
     
     // go to Move state
-    transit("Move", t);
+//     transit("Move", t);
+    
+    // NOTE cartesian_control not yet implemented
+    std::cout << "callback_cartesian_control NOT YET IMPLEMENTED" << std::endl;
     
     return true;
 }
@@ -118,24 +123,74 @@ void myfsm::Move::entry ( const CartesianTrajReceived& m )
 void myfsm::Move::entry ( const SegmentTrajReceived& m ) 
 {
     std::cout << "myfsm::Move::entry SegmentTrajReceived" << std::endl;
-    m.segment_trj;
+    
+    std::vector<trajectory_utils::segment> segments =  m.segment_trj.segment_trj.segments;
+
+    _trj_gen.reset(new trajectory_utils::trajectory_generator(
+                           0.005,
+                           m.segment_trj.segment_trj.header.frame_id, 
+                           segments.at(0).start.distal_frame)
+                           );
+    
+    for(unsigned int i = 0; i < segments.size(); ++i) {
+        trajectory_utils::segment trj = segments[i];
+
+        KDL::Frame start;
+        KDL::Frame end;
+
+        tf::poseMsgToKDL(trj.start.frame.pose, start);
+        tf::poseMsgToKDL(trj.end.frame.pose, end);
+        
+        if(trj.type.data == 0){
+
+            _trj_gen->addMinJerkTrj(start, end, trj.T.data);
+        }
+        else if(trj.type.data == 1){
+            // NOTE TBD implement it
+//             _trj_gen->addArcTrj(trj.start, trj.end_rot, trj.angle_rot,
+//                                 trj.circle_center, trj.plane_normal, trj.T.data);
+        }
+    }
+    
+    if( _trj_gen->getDistalFrame() == "LSoftHand" ) {
+        _pub = shared_data()._nh->advertise<geometry_msgs::PoseStamped>("w_T_left_ee", 1);
+    }
+    else if( _trj_gen->getDistalFrame() == "RSoftHand" ) {
+        _pub = shared_data()._nh->advertise<geometry_msgs::PoseStamped>("w_T_right_ee", 1);
+    }
+
+
 }
 
 void myfsm::Move::entry ( const XBot::FSM::Message& msg )
 {
-
-
 }
 
 
 void myfsm::Move::run ( double time, double period )
 {
 
-    // NOTE test!
-    sleep(5);
+    if (!_trj_gen->isFinished()) {
+        // get the next pose
+        _F = _trj_gen->Pos();
+        _v = _trj_gen->Vel();
+        _a = _trj_gen->Acc();
+        
+        // fill the ROS pose stamped
+        tf::poseKDLToMsg(_F, _pose.pose);
+        _pose.header.stamp = ros::Time::now();
+        
+        // publish on ROS topic
+        _pub.publish(_pose);
+        
+        // update trajectory
+        _trj_gen->updateTrj();
+    }
+    else {
     
-    // come back to ready when the trajectory is over
-    transit("Ready", DummyReady());
+        // come back to ready when the trajectory is over
+        transit("Ready", DummyReady());
+    }
 
 }
 

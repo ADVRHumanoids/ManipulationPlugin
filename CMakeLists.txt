@@ -41,6 +41,8 @@ include(MacroYCMInstallLibrary)
 
 # find required packages
 find_package(XCM REQUIRED)
+find_package(trajectory_utils REQUIRED)
+find_package(tf REQUIRED)
 
 # XENOMAI
 set(ENABLE_XENO CACHE BOOL "ON")
@@ -51,11 +53,14 @@ endif()
 # include
 include_directories(include/${PROJECT_NAME}
                     ${XCM_INCLUDE_DIRS}
+                    ${trajectory_utils_INCLUDE_DIRS}
+                    ${tf_INCLUDE_DIRS}
                     )
 
 # lib
 add_library(${PROJECT_NAME} SHARED
-    src/ManipulationPlugin_plugin.cpp src/fsm_implementation.cpp
+    src/ManipulationPlugin_plugin.cpp 
+    src/fsm_implementation.cpp
 )
 
 # set Xenomain flags if Xenomai is found
@@ -64,7 +69,11 @@ if ( Xenomai_FOUND )
 endif()
 
 # linking
-target_link_libraries(${PROJECT_NAME} ${XCM_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} 
+                      ${XCM_LIBRARIES} 
+                      ${trajectory_utils_LIBRARIES}
+                      ${tf_LIBRARIES}
+                      )
 
 #install
 ycm_library_install(${PROJECT_NAME} 1 0 0)

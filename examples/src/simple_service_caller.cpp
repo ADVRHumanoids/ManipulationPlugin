@@ -18,11 +18,11 @@ int main(int argc, char** argv) {
     // in order to receive the pose of the obj to manipulate (e.g. handle)
     /////////////////////////////
     
-    // blocking call: wait for a pose on topic handle_pose
-    geometry_msgs::PoseStamped::ConstPtr p = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("handle_pose");
-    
-    // once we continue here the p will be filled by the publisher
-    std::cout << p->pose.position.x << std::endl;
+//     // blocking call: wait for a pose on topic handle_pose
+//     geometry_msgs::PoseStamped::ConstPtr p = ros::topic::waitForMessage<geometry_msgs::PoseStamped>("handle_pose");
+//     
+//     // once we continue here the p will be filled by the publisher
+//     std::cout << p->pose.position.x << std::endl;
     
     
     ////////////////////////////
@@ -35,9 +35,9 @@ int main(int argc, char** argv) {
 
     // define the start frame 
     geometry_msgs::PoseStamped start_frame;
-    start_frame.pose.position.x = 0.8;
+    start_frame.pose.position.x = 0.5;
     start_frame.pose.position.y = 0.2;
-    start_frame.pose.position.z = 1.5;
+    start_frame.pose.position.z = 0.5;
     
     start_frame.pose.orientation.x = 0;
     start_frame.pose.orientation.y = 0;
@@ -45,16 +45,16 @@ int main(int argc, char** argv) {
     start_frame.pose.orientation.w = 1;
     
     trajectory_utils::Cartesian start;
-    start.distal_frame = "l_handj";
+    start.distal_frame = "LSoftHand";
     start.frame = start_frame;
     
     
     
     // define the end frame
     geometry_msgs::PoseStamped end_frame;
-    end_frame.pose.position.x = 1.0;
+    end_frame.pose.position.x = 0.8;
     end_frame.pose.position.y = 0.2;
-    end_frame.pose.position.z = 1.0;
+    end_frame.pose.position.z = 0.5;
     
     end_frame.pose.orientation.x = 0;
     end_frame.pose.orientation.y = 0;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     end_frame.pose.orientation.w = 1;
     
     trajectory_utils::Cartesian end;
-    end.distal_frame = "l_handj";
+    end.distal_frame = "LSoftHand";
     end.frame = end_frame;
 
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     
     // prapere the advr_segment_control
     ADVR_ROS::advr_segment_control srv;
-    srv.request.segment_trj.header.frame_id = "base_link";
+    srv.request.segment_trj.header.frame_id = "world";
     srv.request.segment_trj.header.stamp = ros::Time::now();
     srv.request.segment_trj.segments = segments;
     

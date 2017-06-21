@@ -2,6 +2,8 @@
 
 #include <ros/node_handle.h>
 
+#include <trajectory_utils/trajectory_utils.h>
+
 #include <ADVR_ROS/advr_cartesian_control.h>
 #include <ADVR_ROS/advr_segment_control.h>
 
@@ -108,6 +110,14 @@ class Move : public MacroState
 
 private:
 
+    std::shared_ptr<trajectory_utils::trajectory_generator> _trj_gen;
+
+    KDL::Frame _F;
+    KDL::Twist _v;
+    KDL::Twist _a;
+    
+    ros::Publisher _pub;
+    geometry_msgs::PoseStamped _pose;
 
 };
 
