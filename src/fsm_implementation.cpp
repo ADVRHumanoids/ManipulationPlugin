@@ -32,7 +32,8 @@ void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
             ros::init(argc, argv, "ManipulationPlugin");
         }
         
-        shared_data()._nh = std::make_shared<ros::NodeHandle>();
+        ros::NodeHandle* node_handle = new ros::NodeHandle;
+        shared_data()._nh =  std::shared_ptr<ros::NodeHandle>(node_handle);
         
         _cartesian_control_srv = shared_data()._nh->advertiseService<ADVR_ROS::advr_cartesian_controlRequest, ADVR_ROS::advr_cartesian_controlResponse>
         ( "/cartesian_control",
