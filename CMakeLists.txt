@@ -42,7 +42,7 @@ include(MacroYCMInstallLibrary)
 # find required packages
 find_package(XCM REQUIRED)
 find_package(trajectory_utils REQUIRED)
-find_package(tf REQUIRED)
+find_package(tf_conversions REQUIRED)
 
 # XENOMAI
 set(ENABLE_XENO CACHE BOOL "ON")
@@ -54,7 +54,7 @@ endif()
 include_directories(include/${PROJECT_NAME}
                     ${XCM_INCLUDE_DIRS}
                     ${trajectory_utils_INCLUDE_DIRS}
-                    ${tf_INCLUDE_DIRS}
+                    ${tf_conversions_INCLUDE_DIRS}
                     )
 
 # lib
@@ -72,7 +72,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} 
                       ${XCM_LIBRARIES} 
                       ${trajectory_utils_LIBRARIES}
-                      ${tf_LIBRARIES}
+                      ${tf_conversions_LIBRARIES}
                       )
 
 #install
