@@ -6,6 +6,7 @@
 
 #include <ADVR_ROS/advr_cartesian_control.h>
 #include <ADVR_ROS/advr_segment_control.h>
+#include <std_msgs/Bool.h>
 
 namespace myfsm
 {
@@ -90,6 +91,9 @@ private:
     
         ros::ServiceServer _cartesian_control_srv, 
                            _segment_control_srv;
+			   
+	ros::Publisher _feedBack;
+	std_msgs::Bool msg;
 
 };
 
@@ -117,7 +121,7 @@ private:
     KDL::Twist _a;
     
     ros::Publisher _pub;
-    geometry_msgs::PoseStamped _pose;
+    geometry_msgs::PoseStamped _pose;    
 
 };
 

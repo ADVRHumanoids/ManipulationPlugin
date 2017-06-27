@@ -14,6 +14,8 @@ void myfsm::Ready::entry ( const DummyReady& m )
 {
 
     std::cout << " myfsm::Ready::react " << std::endl;
+    msg.data = true;
+    _feedBack.publish(msg);
 
 }
 
@@ -49,6 +51,7 @@ void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
                         _1, _2 )
         );
        
+	_feedBack = shared_data()._nh->advertise<std_msgs::Bool>("Manipulation_status",1);
 
 }
 
@@ -94,6 +97,9 @@ bool myfsm::Ready::callback_segment_control (   ADVR_ROS::advr_segment_controlRe
 
 void myfsm::Ready::run ( double time, double period )
 {
+    
+    msg.data = false;
+    _feedBack.publish(msg);
     ros::spinOnce();
 }
 
@@ -188,7 +194,7 @@ void myfsm::Move::run ( double time, double period )
         _trj_gen->updateTrj();
     }
     else {
-    
+    	
         // come back to ready when the trajectory is over
         transit("Ready", DummyReady());
     }
