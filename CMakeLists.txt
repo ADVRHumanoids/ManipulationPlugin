@@ -17,8 +17,8 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-# CMake 3.5.1 required 
-cmake_minimum_required(VERSION 3.5.1)
+
+cmake_minimum_required(VERSION 2.8.12)
 
 # XBot RT Plugin
 project(ManipulationPlugin)
