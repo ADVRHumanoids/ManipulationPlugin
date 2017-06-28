@@ -6,7 +6,10 @@
 
 #include <ADVR_ROS/advr_cartesian_control.h>
 #include <ADVR_ROS/advr_segment_control.h>
+#include <ADVR_ROS/advr_grasp_control.h>
+
 #include <std_msgs/Bool.h>
+#include <std_msgs/String.h>
 
 namespace myfsm
 {
@@ -99,15 +102,18 @@ public:
         
         bool callback_segment_control(  ADVR_ROS::advr_segment_controlRequest&  req, 
                                         ADVR_ROS::advr_segment_controlResponse& res);
+        
+        bool callback_grasp_control(    ADVR_ROS::advr_grasp_controlRequest&  req, 
+                                        ADVR_ROS::advr_grasp_controlResponse& res);
 private:
     
         ros::ServiceServer _cartesian_control_srv, 
                            _segment_control_srv;
-			   
-	ros::ServiceServer _grasping_control_srv;   
-	ros::Publisher _feedBack;
-	ros::Publisher _grasp;
-	std_msgs::Bool msg;
+            
+        ros::ServiceServer _grasping_control_srv;   
+        ros::Publisher _feedBack;
+        ros::Publisher _grasp;
+        std_msgs::Bool msg;
 
 };
 
