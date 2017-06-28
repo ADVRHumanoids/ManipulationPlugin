@@ -50,8 +50,16 @@ void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
                         this,
                         _1, _2 )
         );
+	
+	_grasping_control_srv = shared_data()._nh->advertiseService<ADVR_ROS::advr_grasp_controlRequest, ADVR_ROS::advr_grasp_controlResponse>
+        ( "/grasp_control",
+          boost::bind ( &Ready::callback_grasp_control,
+                        this,
+                        _1, _2 )
+        );
        
 	_feedBack = shared_data()._nh->advertise<std_msgs::Bool>("Manipulation_status",1);
+	_grasp = shared_data()._nh->advertise<std_msgs::String>("/grasp/RWrMot3/goalGrasp",1);
 
 }
 
@@ -94,6 +102,23 @@ bool myfsm::Ready::callback_segment_control (   ADVR_ROS::advr_segment_controlRe
     
 }
 
+bool myfsm::Ready::callback_grasp_control (   ADVR_ROS::advr_grasp_controlRequest&  req,
+                                                ADVR_ROS::advr_grasp_controlResponse& res )
+{
+    std::cout << " callback_grasp_control called!" << std::endl;
+    
+    // save the requested traj
+    SegmentTrajReceived t(req);
+    
+    // success
+    res.success = 1;
+    
+    // go to Move state
+    transit("Move", t);
+    
+    return true;
+    
+}
 
 void myfsm::Ready::run ( double time, double period )
 {
@@ -231,7 +256,14 @@ void myfsm::HandCmd::entry ( const XBot::FSM::Message& msg )
 void myfsm::HandCmd::run ( double time, double period )
 {
 
-
+  std_msgs::String message;
+  message.data = "";
+  //grasp
+  //rostopic pub /grasp/ball_link/goalGrasp std_msgs/String "data: 'goal_model::goal_link'"
+  
+  //release
+  //rostopic pub /grasp/ball_link/goalGrasp std_msgs/String "data: ''"
+  shared_data()._grasp_mag_pub.publish (message);
 
 }
 
