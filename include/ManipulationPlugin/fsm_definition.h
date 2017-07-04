@@ -6,6 +6,10 @@
 
 #include <ADVR_ROS/advr_cartesian_control.h>
 #include <ADVR_ROS/advr_segment_control.h>
+#include <ADVR_ROS/advr_grasp_control.h>
+
+#include <std_msgs/Bool.h>
+#include <std_msgs/String.h>
 
 namespace myfsm
 {
@@ -47,6 +51,8 @@ struct SharedData {
 
         XBot::RobotInterface::Ptr _robot;
         std::shared_ptr<ros::NodeHandle> _nh;
+        ros::Publisher _feedBack;
+        std_msgs::Bool _msg;
 
 };
 
@@ -86,10 +92,11 @@ public:
         
         bool callback_segment_control(  ADVR_ROS::advr_segment_controlRequest&  req, 
                                         ADVR_ROS::advr_segment_controlResponse& res);
+        
 private:
     
         ros::ServiceServer _cartesian_control_srv, 
-                           _segment_control_srv;
+                           _segment_control_srv;   
 
 };
 
@@ -117,27 +124,7 @@ private:
     KDL::Twist _a;
     
     ros::Publisher _pub;
-    geometry_msgs::PoseStamped _pose;
-
-};
-
-class HandCmd : public MacroState
-{
-
-        virtual std::string get_name() const {
-                return "HandCmd";
-        }
-
-        virtual void run ( double time, double period );
-
-        virtual void entry ( const XBot::FSM::Message& msg );
-
-        virtual void react ( const XBot::FSM::Event& e );
-
-        virtual void exit ();
-
-private:
-
+    geometry_msgs::PoseStamped _pose;    
 
 };
 

@@ -6,22 +6,14 @@
 
 void myfsm::Ready::react ( const XBot::FSM::Event& e )
 {
-    std::cout << " myfsm::Ready::react " << std::endl;
-
 }
 
 void myfsm::Ready::entry ( const DummyReady& m )
 {
-
-    std::cout << " myfsm::Ready::react " << std::endl;
-
 }
 
 void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
 {
-
-        std::cout << " myfsm::Ready::entry " << std::endl;
-        
         // ROS handle
         int argc = 1;
         const char *arg = "ManipulationPlugin";
@@ -48,8 +40,11 @@ void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
                         this,
                         _1, _2 )
         );
+        
+        // NOTE internal status
+        shared_data()._feedBack = shared_data()._nh->advertise<std_msgs::Bool>("Manipulation_status",1);
+        
        
-
 }
 
 
@@ -91,9 +86,11 @@ bool myfsm::Ready::callback_segment_control (   ADVR_ROS::advr_segment_controlRe
     
 }
 
-
 void myfsm::Ready::run ( double time, double period )
 {
+    // READY: not manipulating
+    shared_data()._msg.data = false;
+    shared_data()._feedBack.publish(shared_data()._msg);
     ros::spinOnce();
 }
 
@@ -153,6 +150,8 @@ void myfsm::Move::entry ( const SegmentTrajReceived& m )
         }
     }
     
+    
+    // NOTE hardcoded distal frame
     if( _trj_gen->getDistalFrame() == "LSoftHand" ) {
         _pub = shared_data()._nh->advertise<geometry_msgs::PoseStamped>("w_T_left_ee", 1);
     }
@@ -172,6 +171,7 @@ void myfsm::Move::run ( double time, double period )
 {
 
     if (!_trj_gen->isFinished()) {
+        
         // get the next pose
         _F = _trj_gen->Pos();
         _v = _trj_gen->Vel();
@@ -186,9 +186,14 @@ void myfsm::Move::run ( double time, double period )
         
         // update trajectory
         _trj_gen->updateTrj();
+        
+        // Move: manipulating 
+        shared_data()._msg.data = true;
+        shared_data()._feedBack.publish(shared_data()._msg);
+        ros::spinOnce();
     }
     else {
-    
+        
         // come back to ready when the trajectory is over
         transit("Ready", DummyReady());
     }
@@ -203,40 +208,5 @@ void myfsm::Move::exit ()
 }
 
 /*END Move*/
-
-
-/*BEGIN HandCmd*/
-
-void myfsm::HandCmd::react ( const XBot::FSM::Event& e )
-{
-
-
-
-}
-
-void myfsm::HandCmd::entry ( const XBot::FSM::Message& msg )
-{
-
-
-
-}
-
-
-void myfsm::HandCmd::run ( double time, double period )
-{
-
-
-
-}
-
-void myfsm::HandCmd::exit ()
-{
-
-
-
-}
-
-/*END HandCmd*/
-
 
 
