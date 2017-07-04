@@ -51,6 +51,8 @@ struct SharedData {
 
         XBot::RobotInterface::Ptr _robot;
         std::shared_ptr<ros::NodeHandle> _nh;
+        ros::Publisher _feedBack;
+        std_msgs::Bool _msg;
 
 };
 
@@ -95,8 +97,6 @@ private:
     
         ros::ServiceServer _cartesian_control_srv, 
                            _segment_control_srv;   
-        ros::Publisher _feedBack;
-        std_msgs::Bool msg;
 
 };
 
@@ -125,26 +125,6 @@ private:
     
     ros::Publisher _pub;
     geometry_msgs::PoseStamped _pose;    
-
-};
-
-class HandCmd : public MacroState
-{
-
-        virtual std::string get_name() const {
-                return "HandCmd";
-        }
-
-        virtual void run ( double time, double period );
-
-        virtual void entry ( const XBot::FSM::Message& msg );
-
-        virtual void react ( const XBot::FSM::Event& e );
-
-        virtual void exit ();
-
-private:
-
 
 };
 

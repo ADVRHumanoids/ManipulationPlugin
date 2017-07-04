@@ -49,7 +49,6 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
     /*Registers states*/
     fsm.register_state(std::make_shared<myfsm::Ready>());
     fsm.register_state(std::make_shared<myfsm::Move>());
-    fsm.register_state(std::make_shared<myfsm::HandCmd>());
     
     // Initialize the FSM with the initial state
     fsm.init("Ready");
