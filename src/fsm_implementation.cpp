@@ -152,10 +152,10 @@ void myfsm::Move::entry ( const SegmentTrajReceived& m )
     
     
     // NOTE hardcoded distal frame
-    if( _trj_gen->getDistalFrame() == "LSoftHand" ) {
+    if( _trj_gen->getDistalFrame() == "arm1_8" ) {
         _pub = shared_data()._nh->advertise<geometry_msgs::PoseStamped>("w_T_left_ee", 1);
     }
-    else if( _trj_gen->getDistalFrame() == "RSoftHand" ) {
+    else if( _trj_gen->getDistalFrame() == "arm2_7" ) {
         _pub = shared_data()._nh->advertise<geometry_msgs::PoseStamped>("w_T_right_ee", 1);
     }
 
