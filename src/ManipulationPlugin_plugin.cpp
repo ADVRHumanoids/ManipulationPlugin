@@ -46,6 +46,8 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
     /*Saves robot as shared variable between states*/
     fsm.shared_data()._robot= robot;
 
+    fsm.shared_data().plugin_status= _custom_status;
+    
     /*Registers states*/
     fsm.register_state(std::make_shared<myfsm::Ready>());
     fsm.register_state(std::make_shared<myfsm::Move>());

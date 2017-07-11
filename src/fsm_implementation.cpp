@@ -10,6 +10,7 @@ void myfsm::Ready::react ( const XBot::FSM::Event& e )
 
 void myfsm::Ready::entry ( const DummyReady& m )
 {
+  shared_data().plugin_status->setStatus("READY");
 }
 
 void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
@@ -44,6 +45,7 @@ void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
         // NOTE internal status
         shared_data()._feedBack = shared_data()._nh->advertise<std_msgs::Bool>("Manipulation_status",1);
         
+        shared_data().plugin_status->setStatus("READY"); 
        
 }
 
@@ -160,6 +162,7 @@ void myfsm::Move::entry ( const SegmentTrajReceived& m )
     }
 
 
+     shared_data().plugin_status->setStatus("MOVE");
 }
 
 void myfsm::Move::entry ( const XBot::FSM::Message& msg )

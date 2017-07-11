@@ -10,6 +10,7 @@
 
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
+#include <XCM/XBotPluginStatus.h>
 
 namespace myfsm
 {
@@ -53,6 +54,7 @@ struct SharedData {
         std::shared_ptr<ros::NodeHandle> _nh;
         ros::Publisher _feedBack;
         std_msgs::Bool _msg;
+        std::shared_ptr<XBot::PluginStatus> plugin_status;
 
 };
 
