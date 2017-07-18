@@ -146,9 +146,19 @@ void myfsm::Move::entry ( const SegmentTrajReceived& m )
             _trj_gen->addMinJerkTrj(start, end, trj.T.data);
         }
         else if(trj.type.data == 1){
+            KDL::Rotation end_rot;
+            end_rot.Quaternion(trj.end_rot.x, trj.end_rot.y, trj.end_rot.z, trj.end_rot.w);
+            KDL::Vector circle_center;
+            circle_center.x(trj.circle_center.x);
+            circle_center.y(trj.circle_center.y);
+            circle_center.z(trj.circle_center.z);
+            KDL::Vector plane_normal;
+            plane_normal.x(trj.plane_normal.x);
+            plane_normal.y(trj.plane_normal.y);
+            plane_normal.z(trj.plane_normal.z);
             // NOTE TBD implement it
-//             _trj_gen->addArcTrj(trj.start, trj.end_rot, trj.angle_rot,
-//                                 trj.circle_center, trj.plane_normal, trj.T.data);
+             _trj_gen->addArcTrj(start, end_rot, trj.angle_rot.data,
+                                 circle_center, plane_normal, trj.T.data);
         }
     }
     
