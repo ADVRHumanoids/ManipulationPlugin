@@ -147,7 +147,7 @@ void myfsm::Move::entry ( const SegmentTrajReceived& m )
         }
         else if(trj.type.data == 1){
             KDL::Rotation end_rot;
-            end_rot.Quaternion(trj.end_rot.x, trj.end_rot.y, trj.end_rot.z, trj.end_rot.w);
+            end_rot = end_rot.Quaternion(trj.end_rot.x, trj.end_rot.y, trj.end_rot.z, trj.end_rot.w);
             KDL::Vector circle_center;
             circle_center.x(trj.circle_center.x);
             circle_center.y(trj.circle_center.y);
