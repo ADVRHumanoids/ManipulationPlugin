@@ -6,10 +6,11 @@
 
 #include <ADVR_ROS/advr_cartesian_control.h>
 #include <ADVR_ROS/advr_segment_control.h>
-#include <ADVR_ROS/advr_grasp_control.h>
+#include <ADVR_ROS/advr_grasp_control_srv.h>
 
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 #include <XCM/XBotPluginStatus.h>
 
 namespace myfsm
@@ -38,6 +39,18 @@ public:
         }
 
         ADVR_ROS::advr_segment_controlRequest segment_trj;
+};
+
+class GraspMessage : public XBot::FSM::Message
+{
+
+public:
+        GraspMessage ( ADVR_ROS::advr_grasp_control_srvRequest grasp_msg )
+        {
+            this->grasp_msg = grasp_msg;
+        }
+
+        ADVR_ROS::advr_grasp_control_srvRequest grasp_msg;
 };
 
 class DummyReady : public XBot::FSM::Message
@@ -69,6 +82,7 @@ public:
         virtual void entry ( const DummyReady& e ) {};
         virtual void entry ( const CartesianTrajReceived& e ) {};
         virtual void entry ( const SegmentTrajReceived& e ) {};
+	virtual void entry ( const GraspMessage& e ) {};
 
 };
 
@@ -94,11 +108,15 @@ public:
         
         bool callback_segment_control(  ADVR_ROS::advr_segment_controlRequest&  req, 
                                         ADVR_ROS::advr_segment_controlResponse& res);
+	
+	bool callback_grasp_control(  ADVR_ROS::advr_grasp_control_srvRequest&  req, 
+                                      ADVR_ROS::advr_grasp_control_srvResponse& res);
         
 private:
     
         ros::ServiceServer _cartesian_control_srv, 
-                           _segment_control_srv;   
+                           _segment_control_srv,
+			   _grasp_control_srv;   
 
 };
 
@@ -127,6 +145,31 @@ private:
     
     ros::Publisher _pub;
     geometry_msgs::PoseStamped _pose;    
+
+};
+
+class Grasp : public MacroState
+{
+
+        virtual std::string get_name() const {
+                return "Grasp";
+        }
+        virtual void run ( double time, double period );
+        virtual void entry ( const XBot::FSM::Message& msg );
+        
+        virtual void entry ( const GraspMessage& m );
+        //virtual void entry ( const SegmentTrajReceived& m );
+        
+        virtual void react ( const XBot::FSM::Event& e );
+        virtual void exit();
+
+private:
+
+    //std::shared_ptr<trajectory_utils::trajectory_generator> _trj_gen;
+    ros::Publisher _right_pub, _left_pub;
+    double _r_grasp_val, _l_grasp_val;
+    
+   
 
 };
 

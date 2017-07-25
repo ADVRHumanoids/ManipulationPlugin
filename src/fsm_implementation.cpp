@@ -41,6 +41,13 @@ void myfsm::Ready::entry ( const XBot::FSM::Message& msg )
                         this,
                         _1, _2 )
         );
+	
+	_grasp_control_srv = shared_data()._nh->advertiseService<ADVR_ROS::advr_grasp_control_srvRequest, ADVR_ROS::advr_grasp_control_srvResponse>
+        ( "/grasp_control",
+          boost::bind ( &Ready::callback_grasp_control,
+                        this,
+                        _1, _2 )
+        );
         
         // NOTE internal status
         shared_data()._feedBack = shared_data()._nh->advertise<std_msgs::Bool>("Manipulation_status",1);
@@ -86,6 +93,23 @@ bool myfsm::Ready::callback_segment_control (   ADVR_ROS::advr_segment_controlRe
     
     return true;
     
+}
+
+bool myfsm::Ready::callback_grasp_control (    ADVR_ROS::advr_grasp_control_srvRequest&  req, 
+					       ADVR_ROS::advr_grasp_control_srvResponse& res )
+{
+    std::cout << " callback_grasp_control called!" << std::endl;
+    
+    // save the requested traj
+    GraspMessage m(req);
+    
+    // success
+    res.success = 1;
+   
+    // go to Grasp state
+    transit("Grasp", m);
+    
+    return true;
 }
 
 void myfsm::Ready::run ( double time, double period )
@@ -222,4 +246,76 @@ void myfsm::Move::exit ()
 
 /*END Move*/
 
+
+
+/*BEGIN Grasp*/
+
+void myfsm::Grasp::react ( const XBot::FSM::Event& e )
+{
+
+}
+
+void myfsm::Grasp::entry ( const GraspMessage& m ) 
+{
+   std::cout << "myfsm::Grasp:entry GraspMessage" << std::endl;
+   
+   
+   _right_pub = shared_data()._nh->advertise<std_msgs::Float64>("w_grasp_right", 1);
+   _left_pub = shared_data()._nh->advertise<std_msgs::Float64>("w_grasp_left", 1);   
+   
+   _r_grasp_val = m.grasp_msg.right_grasp;
+   _l_grasp_val = m.grasp_msg.left_grasp;
+    
+    shared_data().plugin_status->setStatus("GRASP");
+    
+}
+
+
+void myfsm::Grasp::entry ( const XBot::FSM::Message& msg )
+{
+  std::cout << "myfsm::Grasp:entry fsm message" << std::endl;
+}
+
+
+void myfsm::Grasp::run ( double time, double period )
+{
+
+  
+      std_msgs::Float64 grasp_msg;
+      
+      //right
+      grasp_msg.data = _r_grasp_val;
+      _right_pub.publish(grasp_msg);
+      
+      //left
+      grasp_msg.data = _l_grasp_val;
+      _left_pub.publish(grasp_msg);
+  
+      
+      transit("Ready", DummyReady());
+      //TODO
+      
+//       if(!_RHand->getGraspState()){	
+// 	
+// 	shared_data()._msg.data = true;
+//         shared_data()._feedBack.publish(shared_data()._msg);
+// 	ros::spinOnce();
+// 	 
+//       }else{
+// 	
+// 	 // come back to ready when the trajectory is over
+//         transit("Ready", DummyReady());
+// 	
+//       }
+
+}
+
+void myfsm::Grasp::exit ()
+{
+
+
+
+}
+
+/*END Move*/
 
