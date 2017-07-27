@@ -98,7 +98,7 @@ bool myfsm::Ready::callback_segment_control (   ADVR_ROS::advr_segment_controlRe
 bool myfsm::Ready::callback_grasp_control (    ADVR_ROS::advr_grasp_control_srvRequest&  req, 
 					       ADVR_ROS::advr_grasp_control_srvResponse& res )
 {
-    std::cout << " callback_grasp_control called!" << std::endl;
+    std::cout << " callback_grasp_control called! --- " << req.left_grasp << std::endl;
     
     // save the requested traj
     GraspMessage m(req);
@@ -268,6 +268,8 @@ void myfsm::Grasp::entry ( const GraspMessage& m )
     
     shared_data().plugin_status->setStatus("GRASP");
     
+    sleep(1);
+    
 }
 
 
@@ -290,7 +292,6 @@ void myfsm::Grasp::run ( double time, double period )
       //left
       grasp_msg.data = _l_grasp_val;
       _left_pub.publish(grasp_msg);
-  
       
       transit("Ready", DummyReady());
       //TODO
