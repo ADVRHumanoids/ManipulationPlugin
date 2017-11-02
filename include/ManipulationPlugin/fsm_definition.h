@@ -68,6 +68,7 @@ struct SharedData {
         ros::Publisher _feedBack;
         std_msgs::Bool _msg;
         std::shared_ptr<XBot::PluginStatus> plugin_status;
+        bool abort;
 
 };
 

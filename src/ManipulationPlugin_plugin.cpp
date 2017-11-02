@@ -66,6 +66,7 @@ bool ManipulationPlugin::init_control_plugin(std::string path_to_config_file,
 void ManipulationPlugin::on_start(double time)
 {
 
+    fsm.shared_data().abort = false;
     /* Save the plugin starting time to a class member */
     _robot->getMotorPosition(_q0);
 
@@ -75,6 +76,7 @@ void ManipulationPlugin::on_start(double time)
 
 void ManipulationPlugin::on_stop(double time)
 {
+    fsm.shared_data().abort = true;
 }
 
 

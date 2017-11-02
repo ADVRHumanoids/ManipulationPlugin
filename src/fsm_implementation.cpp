@@ -207,7 +207,7 @@ void myfsm::Move::entry ( const XBot::FSM::Message& msg )
 void myfsm::Move::run ( double time, double period )
 {
 
-    if (!_trj_gen->isFinished()) {
+    if ( !shared_data().abort && !_trj_gen->isFinished()) {
         
         // get the next pose
         _F = _trj_gen->Pos();
